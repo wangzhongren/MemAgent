@@ -1,6 +1,6 @@
-# MemAgent: AI-Powered File Navigator with Persistent Memory
+# Archivist: AI-Powered File Navigator with Persistent Memory
 
-**MemAgent** is an open-source multi-agent system that lets you interact with your file system through natural language. Powered by large language models (LLMs), it automatically executes file operations (read, search, list) and builds a persistent memory of solutions to recurring questions — all through an intuitive web interface.
+**Archivist** is an open-source multi-agent system that lets you interact with your file system through natural language. Powered by large language models (LLMs), it automatically executes file operations (read, search, list) and builds a persistent memory of solutions to recurring questions — all through an intuitive web interface.
 
 > 🌟 **Key Innovation**: Unlike rigid command parsers, MemAgent uses LLMs to *autonomously decide* when to call tools, enabling fluid, human-like problem solving over your codebase or documents.
 
