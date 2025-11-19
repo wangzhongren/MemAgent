@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent WebUI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        .sidebar {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+        }
+        #chatBox {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-y: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .user { background-color: #e3f2fd; }
+        .assistant { background-color: #f1f8e9; }
+        .tool { background-color: #fff3e0; }
+        #inputForm {
+            display: flex;
+            gap: 10px;
+        }
+        #userInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: #1565c0; }
+        .memory-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        .memory-item {
+            margin-bottom: 8px;
+            padding: 5px;
+            background: white;
+            border-radius: 3px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .note {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: -8px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h3>大模型配置</h3>
+            <label>LLM Base URL:</label>
+            <div class="note">例如: http://localhost:11434/v1 (Ollama) 或 https://api.openai.com/v1</div>
+            <input type="text" id="llmBaseUrl" placeholder="http://localhost:11434/v1" value="http://localhost:11434/v1">
+            
+            <label>Model Name:</label>
+            <input type="text" id="modelName" placeholder="gpt-4" value="qwen:7b">
+            
+            <label>API Key:</label>
+            <input type="password" id="apiKey" placeholder="your-api-key (Ollama可留空)">
+            
+            <label>工作目录:</label>
+            <input type="text" id="workDir" placeholder="./" value=".">
+            
+            <button onclick="saveConfig()">保存配置</button>
+            
+            <h3>记忆条目</h3>
+            <div id="memoryList" class="memory-list"></div>
+            <button onclick="loadMemories()" style="margin-top: 10px;">刷新记忆</button>
+        </div>
+        
+        <div>
+            <h2>AI Agent 对话</h2>
+            <div id="chatBox"></div>
+            <form id="inputForm">
+                <input type="text" id="userInput" placeholder="输入你的消息..." autocomplete="off">
+                <button type="submit">发送</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 注意：backendUrl 固定为当前域名+端口（Flask服务地址）
+        const backendUrl = window.location.origin; // 自动获取 http://localhost:8000
+        
+        let config = {
+            llmBaseUrl: "http://localhost:11434/v1", // 大模型API地址
+            modelName: "qwen:7b",
+            apiKey: "",
+            workDir: "."
+        };
+
+        // 加载配置
+        function loadConfig() {
+            const saved = localStorage.getItem('agentConfig');
+            if (saved) {
+                config = JSON.parse(saved);
+                document.getElementById('llmBaseUrl').value = config.llmBaseUrl;
+                document.getElementById('modelName').value = config.modelName;
+                document.getElementById('apiKey').value = config.apiKey;
+                document.getElementById('workDir').value = config.workDir;
+            }
+        }
+
+        // 保存配置
+        function saveConfig() {
+            config.llmBaseUrl = document.getElementById('llmBaseUrl').value;
+            config.modelName = document.getElementById('modelName').value;
+            config.apiKey = document.getElementById('apiKey').value;
+            config.workDir = document.getElementById('workDir').value;
+            localStorage.setItem('agentConfig', JSON.stringify(config));
+            appendMessage("配置已保存", "assistant");
+        }
+
+        // 添加消息到聊天框
+        function appendMessage(text, role) {
+            const chatBox = document.getElementById('chatBox');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${role}`;
+            msgDiv.textContent = text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // 加载记忆
+        function loadMemories() {
+            fetch(`${backendUrl}/memories`)
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById('memoryList');
+                    list.innerHTML = '';
+                    for (const [key, value] of Object.entries(data)) {
+                        const item = document.createElement('div');
+                        item.className = 'memory-item';
+                        item.innerHTML = `<strong>${key}</strong><br>${value}`;
+                        list.appendChild(item);
+                    }
+                })
+                .catch(err => {
+                    console.error('加载记忆失败:', err);
+                    appendMessage('⚠️ 加载记忆失败', 'assistant');
+                });
+        }
+
+        // 处理用户输入
+        async function handleUserInput() {
+            const input = document.getElementById('userInput');
+            const userMsg = input.value.trim();
+            if (!userMsg) return;
+
+            appendMessage(userMsg, 'user');
+            input.value = '';
+
+            try {
+                // 关键修复：向 Flask 后端发送请求（backendUrl 固定）
+                const response = await fetch(`${backendUrl}/process`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_input: userMsg,
+                        base_url: config.llmBaseUrl,   // 大模型API地址
+                        api_key: config.apiKey || "ollama", // Ollama需要非空值
+                        model_name: config.modelName,
+                        work_dir: config.workDir
+                    })
+                });
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    const text = await response.text();
+                    throw new Error(`服务器返回非JSON: ${text.substring(0, 100)}...`);
+                }
+
+                const data = await response.json();
+                if (data.error) {
+                    appendMessage(`❌ 错误: ${data.error}`, 'assistant');
+                } else {
+                    appendMessage(data.response || JSON.stringify(data), 'assistant');
+                }
+            } catch (err) {
+                appendMessage(`❌ 请求失败: ${err.message}`, 'assistant');
+            }
+
+            loadMemories();
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConfig();
+            loadMemories();
+            document.getElementById('inputForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                handleUserInput();
+            });
+        });
+    </script>
+</body>
+</html>
