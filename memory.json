@@ -1,4 +1,7 @@
 {
   "Q: 你好...": "问题：你好；解答：您好！有什么可以帮助您的吗？",
-  "Q: 你看下这个文件夹下面有多少文件...": "问题：你看下这个文件夹下面有多少文件；解答：当前目录下有3个文件：app.py、memory.json 和 server.py。"
+  "Q: 你看下这个文件夹下面有多少文件...": "问题：你看下这个文件夹下面有多少文件；解答：当前目录下有3个文件：app.py、memory.json 和 server.py。",
+  "Q: 当前项目有多少文件...": "问题：当前项目有多少文件；解答：当前项目共有5个文件。",
+  "Q: 分别是哪5个文件...": "问题：分别是哪5个文件；解答：当前目录下的5个文件分别是：\n1. app.py\n2. LICENSE\n3. memory.json\n4. README.md\n5. server.py",
+  "Q: 再app.py 里面搜索一下main 方法，内容是什么...": "问题：再app.py 里面搜索一下main 方法，内容是什么；解答：在 `app.py` 中找到的 `main` 方法相关内容如下：\n\n1. **程序入口点**：\n   ```python\n   if __name__ == \"__main__\":\n       system = AIAgentSystem()\n       while True:\n           user_input = input(\"User: \")\n           if user_input.lower() in [\"exit\", \"quit\"]:\n               break\n           result = system.process_user_input(user_input)\n   ```\n   这是 Python 的标准入口点，初始化 `AIAgentSystem` 并进入主循环，处理用户输入。\n\n2. **命令处理逻辑**：\n   在 `process_user_input` 方法中，通过判断用户输入内容，调用以下方法处理不同指令：\n   - `list_files`（列出文件）\n   - `read_file`（读取文件内容）\n   - `search_keyword`（搜索关键词）\n   - 异常处理逻辑\n\n3. **匹配位置**：\n   - `main` 关键字出现在类方法名、条件判断和入口点中，具体逻辑见上述代码块。\n\n如果需要进一步分析某个具体部分，请随时告诉我！"
 }

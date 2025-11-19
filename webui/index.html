@@ -3,143 +3,446 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agent WebUI</title>
+    <title>MemAgent - Transparent AI Workflow</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+        :root {
+            --google-blue-50: #e8f0fe;
+            --google-blue-100: #d2e3fc;
+            --google-blue-500: #1a73e8;
+            --google-blue-600: #1967d2;
+            --google-blue-700: #174ea6;
+            --google-green-50: #e6f4ea;
+            --google-green-500: #34a853;
+            --google-orange-50: #fef7e0;
+            --google-orange-500: #f9ab00;
+            --google-red-50: #fce8e6;
+            --google-red-500: #ea4335;
+            --google-gray-50: #f8f9fa;
+            --google-gray-100: #f1f3f4;
+            --google-gray-200: #e8eaed;
+            --google-gray-300: #dadce0;
+            --google-gray-500: #9aa0a6;
+            --google-gray-700: #5f6368;
+            --google-gray-900: #202124;
+            --surface: #ffffff;
+            --surface-container: #f8f9fa;
+            --on-surface: #202124;
+            --on-surface-variant: #5f6368;
+            --primary: #1a73e8;
+            --primary-container: #e8f0fe;
+            --on-primary: #ffffff;
+            --outline: #dadce0;
+            --shadow: 0 1px 2px 0 rgba(60,64,67,0.302), 0 2px 6px 2px rgba(60,64,67,0.149);
         }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--google-gray-50);
+            color: var(--google-gray-900);
+            line-height: 1.5;
+        }
+
         .container {
-            max-width: 1200px;
+            max-width: 1440px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 20px;
+            grid-template-columns: 360px 1fr 360px;
+            gap: 24px;
+            padding: 24px;
+            min-height: 100vh;
         }
+
+        /* Sidebar Styles */
         .sidebar {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: var(--surface);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
+
+        .sidebar h3 {
+            font-family: 'Google Sans', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            margin: 0 0 12px 0;
+            color: var(--google-gray-900);
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--google-gray-200);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--google-gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .note {
+            font-size: 12px;
+            color: var(--google-gray-500);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            padding: 12px 14px;
+            border: 1px solid var(--google-gray-300);
+            border-radius: 8px;
+            background: var(--google-gray-50);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--google-blue-500);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        button {
+            font-family: 'Google Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 16px;
+            background: var(--google-blue-500);
+            color: var(--on-primary);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            background: var(--google-blue-600);
+        }
+
+        button:disabled {
+            background: var(--google-gray-200);
+            color: var(--google-gray-500);
+            cursor: not-allowed;
+        }
+
+        /* Memory Panel */
+        .memory-panel {
+            background: var(--surface);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .memory-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            background: var(--google-gray-50);
+            border-radius: 8px;
+            border: 1px solid var(--google-gray-200);
+        }
+
+        .memory-item {
+            padding: 10px;
+            background: var(--surface);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            border: 1px solid var(--google-gray-200);
+        }
+
+        .memory-item strong {
+            display: block;
+            color: var(--google-gray-900);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h2 {
+            font-family: 'Google Sans', sans-serif;
+            font-weight: 500;
+            font-size: 22px;
+            margin: 0;
+            color: var(--google-gray-900);
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--google-blue-500) 0%, var(--google-green-500) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Chat Container */
         .chat-container {
             display: flex;
             flex-direction: column;
-            height: 70vh;
+            height: calc(100vh - 220px);
+            background: var(--surface);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
         }
+
         #chatBox {
             flex: 1;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 20px;
             overflow-y: auto;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
+
         .message {
-            margin-bottom: 10px;
-            padding: 8px;
-            border-radius: 5px;
+            max-width: 85%;
+            padding: 14px 16px;
+            border-radius: 16px;
+            position: relative;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.5;
         }
-        .user { background-color: #e3f2fd; }
-        .assistant { background-color: #f1f8e9; }
-        .tool { background-color: #fff3e0; }
+
+        .user {
+            background: var(--google-blue-50);
+            color: var(--google-gray-900);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .assistant {
+            background: var(--google-gray-100);
+            color: var(--google-gray-900);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .tool-call {
+            background: var(--google-green-50);
+            color: var(--google-gray-900);
+            align-self: flex-start;
+            border-left: 3px solid var(--google-green-500);
+            border-bottom-left-radius: 4px;
+        }
+
+        .tool-result {
+            background: var(--google-orange-50);
+            color: var(--google-gray-900);
+            align-self: flex-start;
+            border-left: 3px solid var(--google-orange-500);
+            border-bottom-left-radius: 4px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+        }
+
+        .final-response {
+            background: var(--google-blue-50);
+            color: var(--google-gray-900);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            font-weight: 500;
+        }
+
+        .thinking {
+            color: var(--google-gray-500);
+            font-style: italic;
+            align-self: center;
+            font-size: 13px;
+        }
+
+        /* Input Form */
         #inputForm {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            padding: 16px 20px;
+            background: var(--surface);
+            border-top: 1px solid var(--google-gray-200);
         }
+
         #userInput {
             flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
+            font-size: 15px;
+            padding: 12px 16px;
+            border: 1px solid var(--google-gray-300);
+            border-radius: 12px;
+            background: var(--google-gray-50);
+        }
+
+        #userInput:focus {
+            outline: none;
+            border-color: var(--google-blue-500);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        #sendButton {
+            min-width: 80px;
+            border-radius: 12px;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--google-gray-100);
             border-radius: 4px;
         }
-        button {
-            padding: 10px 15px;
-            background: #1976d2;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover { background: #1565c0; }
-        .memory-list {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 10px;
-            padding: 10px;
-            background: #f9f9f9;
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--google-gray-300);
             border-radius: 4px;
         }
-        .memory-item {
-            margin-bottom: 8px;
-            padding: 5px;
-            background: white;
-            border-radius: 3px;
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--google-gray-500);
         }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr 360px;
+                padding: 16px;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                grid-column: 1;
+            }
+            
+            .memory-panel {
+                grid-column: 2;
+            }
         }
-        .note {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: -8px;
-            margin-bottom: 8px;
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .memory-panel {
+                order: 3;
+                grid-column: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .message {
+                max-width: 95%;
+            }
+            
+            #inputForm {
+                flex-direction: column;
+            }
+            
+            #sendButton {
+                min-width: auto;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
-            <h3>大模型配置</h3>
-            <label>LLM Base URL:</label>
-            <div class="note">例如: http://localhost:11434/v1 (Ollama) 或 https://api.openai.com/v1</div>
-            <input type="text" id="llmBaseUrl" placeholder="http://localhost:11434/v1" value="http://localhost:11434/v1">
+            <div class="input-group">
+                <label>LLM Base URL</label>
+                <input type="text" id="llmBaseUrl" placeholder="http://localhost:11434/v1" value="http://localhost:11434/v1">
+                <div class="note">例如: http://localhost:11434/v1 (Ollama) 或 https://api.openai.com/v1</div>
+            </div>
             
-            <label>Model Name:</label>
-            <input type="text" id="modelName" placeholder="gpt-4" value="qwen:7b">
+            <div class="input-group">
+                <label>Model Name</label>
+                <input type="text" id="modelName" placeholder="gpt-4" value="qwen:7b">
+            </div>
             
-            <label>API Key:</label>
-            <input type="password" id="apiKey" placeholder="your-api-key (Ollama可留空)">
+            <div class="input-group">
+                <label>API Key</label>
+                <input type="password" id="apiKey" placeholder="your-api-key (Ollama可留空)">
+            </div>
             
-            <label>工作目录:</label>
-            <input type="text" id="workDir" placeholder="./" value=".">
+            <div class="input-group">
+                <label>工作目录</label>
+                <input type="text" id="workDir" placeholder="./" value=".">
+            </div>
             
             <button onclick="saveConfig()">保存配置</button>
-            
-            <h3>记忆条目</h3>
-            <div id="memoryList" class="memory-list"></div>
-            <button onclick="loadMemories()" style="margin-top: 10px;">刷新记忆</button>
         </div>
         
-        <div>
-            <h2>AI Agent 对话</h2>
-            <div id="chatBox"></div>
-            <form id="inputForm">
-                <input type="text" id="userInput" placeholder="输入你的消息..." autocomplete="off">
-                <button type="submit">发送</button>
-            </form>
+        <div class="main-content">
+            <div class="header">
+                <div class="logo">M</div>
+                <h2>MemAgent - 透明化 AI 工作流</h2>
+            </div>
+            
+            <div class="chat-container">
+                <div id="chatBox"></div>
+                <form id="inputForm">
+                    <input type="text" id="userInput" placeholder="输入你的消息..." autocomplete="off">
+                    <button type="submit" id="sendButton">发送</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="memory-panel">
+            <h3>记忆条目</h3>
+            <div id="memoryList" class="memory-list"></div>
+            <button onclick="loadMemories()" style="margin-top: 8px;">刷新记忆</button>
         </div>
     </div>
 
     <script>
-        // 注意：backendUrl 固定为当前域名+端口（Flask服务地址）
-        const backendUrl = window.location.origin; // 自动获取 http://localhost:8000
-        
+        const backendUrl = window.location.origin;
         let config = {
-            llmBaseUrl: "http://localhost:11434/v1", // 大模型API地址
+            llmBaseUrl: "http://localhost:11434/v1",
             modelName: "qwen:7b",
             apiKey: "",
             workDir: "."
         };
+        let currentSessionId = null;
+        let isProcessing = false;
 
-        // 加载配置
         function loadConfig() {
             const saved = localStorage.getItem('agentConfig');
             if (saved) {
@@ -151,7 +454,6 @@
             }
         }
 
-        // 保存配置
         function saveConfig() {
             config.llmBaseUrl = document.getElementById('llmBaseUrl').value;
             config.modelName = document.getElementById('modelName').value;
@@ -161,81 +463,168 @@
             appendMessage("配置已保存", "assistant");
         }
 
-        // 添加消息到聊天框
-        function appendMessage(text, role) {
+        function appendMessage(text, role, extraData = {}) {
             const chatBox = document.getElementById('chatBox');
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${role}`;
-            msgDiv.textContent = text;
+            
+            if (role === 'tool-call') {
+                const toolNames = extraData.toolCalls.map(tc => tc.function.name).join(', ');
+                msgDiv.innerHTML = `<strong>🧠 AI 决策:</strong> ${text || '需要执行工具调用'}<br><em>将调用: ${toolNames}</em>`;
+            } else if (role === 'tool-result') {
+                const resultStr = typeof extraData.result === 'object' 
+                    ? JSON.stringify(extraData.result, null, 2) 
+                    : String(extraData.result);
+                msgDiv.innerHTML = `<strong>🛠️ 工具执行 [${extraData.toolName}]:</strong><br><pre>${resultStr}</pre>`;
+            } else if (role === 'final-response') {
+                msgDiv.innerHTML = `<strong>✅ 最终答案:</strong><br>${text}`;
+            } else if (role === 'thinking') {
+                msgDiv.textContent = text;
+            } else {
+                msgDiv.textContent = text;
+            }
+            
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // 加载记忆
-        function loadMemories() {
-            fetch(`${backendUrl}/memories`)
-                .then(res => res.json())
-                .then(data => {
-                    const list = document.getElementById('memoryList');
-                    list.innerHTML = '';
-                    for (const [key, value] of Object.entries(data)) {
-                        const item = document.createElement('div');
-                        item.className = 'memory-item';
-                        item.innerHTML = `<strong>${key}</strong><br>${value}`;
-                        list.appendChild(item);
-                    }
-                })
-                .catch(err => {
-                    console.error('加载记忆失败:', err);
-                    appendMessage('⚠️ 加载记忆失败', 'assistant');
-                });
+        function setProcessing(state) {
+            isProcessing = state;
+            const sendButton = document.getElementById('sendButton');
+            const userInput = document.getElementById('userInput');
+            sendButton.disabled = state;
+            sendButton.textContent = state ? '思考中...' : '发送';
+            if (state) {
+                appendMessage("思考中...", "thinking");
+            }
         }
 
-        // 处理用户输入
-        async function handleUserInput() {
-            const input = document.getElementById('userInput');
-            const userMsg = input.value.trim();
-            if (!userMsg) return;
-
-            appendMessage(userMsg, 'user');
-            input.value = '';
-
+        async function loadMemories() {
             try {
-                // 关键修复：向 Flask 后端发送请求（backendUrl 固定）
-                const response = await fetch(`${backendUrl}/process`, {
+                const res = await fetch(`${backendUrl}/memories`);
+                const data = await res.json();
+                const list = document.getElementById('memoryList');
+                list.innerHTML = '';
+                for (const [key, value] of Object.entries(data)) {
+                    const item = document.createElement('div');
+                    item.className = 'memory-item';
+                    item.innerHTML = `<strong>${key}</strong><br>${value}`;
+                    list.appendChild(item);
+                }
+            } catch (err) {
+                console.error('加载记忆失败:', err);
+            }
+        }
+
+        async function startNewSession(userMsg) {
+            currentSessionId = 'session_' + Date.now();
+            setProcessing(true);
+            
+            try {
+                const startRes = await fetch(`${backendUrl}/start_session`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        session_id: currentSessionId,
                         user_input: userMsg,
-                        base_url: config.llmBaseUrl,   // 大模型API地址
-                        api_key: config.apiKey || "ollama", // Ollama需要非空值
+                        base_url: config.llmBaseUrl,
+                        api_key: config.apiKey || "ollama",
                         model_name: config.modelName,
                         work_dir: config.workDir
                     })
                 });
-
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    const text = await response.text();
-                    throw new Error(`服务器返回非JSON: ${text.substring(0, 100)}...`);
+                
+                if (!startRes.ok) {
+                    const text = await startRes.text();
+                    throw new Error(`会话启动失败: ${text}`);
                 }
-
-                const data = await response.json();
-                if (data.error) {
-                    appendMessage(`❌ 错误: ${data.error}`, 'assistant');
-                } else {
-                    appendMessage(data.response || JSON.stringify(data), 'assistant');
-                }
+                
+                await runNextStep();
             } catch (err) {
-                appendMessage(`❌ 请求失败: ${err.message}`, 'assistant');
+                appendMessage(`❌ 会话启动失败: ${err.message}`, 'assistant');
+                setProcessing(false);
             }
-
-            loadMemories();
         }
 
-        // 初始化
+        async function runNextStep() {
+            try {
+                const stepRes = await fetch(`${backendUrl}/next_step`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: currentSessionId })
+                });
+                
+                const contentType = stepRes.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    const text = await stepRes.text();
+                    throw new Error(`服务器返回非JSON: ${text.substring(0, 100)}...`);
+                }
+                
+                const data = await stepRes.json();
+                
+                if (data.error) {
+                    appendMessage(`❌ 步骤执行错误: ${data.error}`, 'assistant');
+                    setProcessing(false);
+                    return;
+                }
+                
+                if (data.type === 'tool_call') {
+                    // 显示 AI 决策
+                    appendMessage(data.message, 'tool-call', { toolCalls: data.tool_calls });
+                    
+                    // 依次执行每个工具调用
+                    for (const toolCall of data.tool_calls) {
+                        await executeTool(toolCall);
+                    }
+                    
+                    // 继续下一步（可能还有更多工具调用）
+                    await runNextStep();
+                } else if (data.type === 'final_response') {
+                    // 显示最终答案
+                    appendMessage(data.response, 'final-response');
+                    setProcessing(false);
+                    loadMemories();
+                }
+            } catch (err) {
+                appendMessage(`❌ 步骤执行失败: ${err.message}`, 'assistant');
+                setProcessing(false);
+            }
+        }
+
+        async function executeTool(toolCall) {
+            try {
+                const execRes = await fetch(`${backendUrl}/execute_tool`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        tool_call: toolCall
+                    })
+                });
+                
+                const execData = await execRes.json();
+                appendMessage('', 'tool-result', {
+                    result: execData.result,
+                    toolName: execData.tool_name
+                });
+            } catch (err) {
+                appendMessage(`❌ 工具执行失败: ${err.message}`, 'tool-result', {
+                    result: { error: err.message },
+                    toolName: toolCall.function.name
+                });
+            }
+        }
+
+        async function handleUserInput() {
+            const input = document.getElementById('userInput');
+            const userMsg = input.value.trim();
+            if (!userMsg || isProcessing) return;
+
+            appendMessage(userMsg, 'user');
+            input.value = '';
+            await startNewSession(userMsg);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             loadConfig();
             loadMemories();
