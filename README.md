@@ -41,7 +41,7 @@ Works with any OpenAI-compatible API:
 ### Installation
 ```bash
 # Clone the repo
-git clone https://github.com/your-username/memagent.git
+git clone https://github.com/wangzhongren/memagent.git
 cd memagent
 
 # Install dependencies
